@@ -20,6 +20,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.security.MessageDigest;
 
+
 /**
  * Path assembler
  *
@@ -27,17 +28,18 @@ import java.security.MessageDigest;
  * @author Yves Zoundi
  */
 public class PathAssembler {
-
         public static final String ANT_USER_HOME_STRING = "ANT_USER_HOME";
         public static final String PROJECT_STRING = "PROJECT";
         private File antUserHome;
 
-        public PathAssembler() {
-        }
+
+        public PathAssembler() { }
+
 
         public PathAssembler(File antUserHome) {
                 this.antUserHome = antUserHome;
         }
+
 
         /**
          * Determines the local locations for the distribution to use given the supplied configuration.
@@ -56,11 +58,13 @@ public class PathAssembler {
                 return new LocalDistribution(distDir, distZip);
         }
 
+
         private String rootDirName(String distName, WrapperConfiguration configuration) {
                 String urlHash = getMd5Hash(configuration.getDistribution().toString());
                 
                 return String.format("%s/%s", distName, urlHash);
         }
+
 
         private String getMd5Hash(String string) {
                 try {
@@ -74,6 +78,7 @@ public class PathAssembler {
                 }
         }
 
+
         private String removeExtension(String name) {
                 int p = name.lastIndexOf(".");
 
@@ -83,6 +88,7 @@ public class PathAssembler {
 
                 return name.substring(0, p);
         }
+
 
         private String getDistName(URI distUrl) {
                 String path = distUrl.getPath();
@@ -94,6 +100,7 @@ public class PathAssembler {
 
                 return path.substring(p + 1);
         }
+
 
         private File getBaseDir(String base) {
                 if (base.equals(ANT_USER_HOME_STRING)) {
@@ -107,8 +114,8 @@ public class PathAssembler {
                 }
         }
 
-        public class LocalDistribution {
 
+        public class LocalDistribution {
                 private final File distZip;
                 private final File distDir;
 

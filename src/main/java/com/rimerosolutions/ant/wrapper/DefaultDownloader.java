@@ -13,29 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.rimerosolutions.ant.wrapper;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.*;
+import java.net.*;
+
 
 /**
  * @author Hans Dockter
  */
-public class DefaultDownloader implements Downloader {
-
+public class DefaultDownloader {
         private static final int PROGRESS_CHUNK = 20000;
         private static final int BUFFER_SIZE = 10000;
         private final String applicationName;
         private final String applicationVersion;
+
 
         public DefaultDownloader(String applicationName, String applicationVersion) {
                 this.applicationName = applicationName;
@@ -43,11 +35,13 @@ public class DefaultDownloader implements Downloader {
                 configureProxyAuthentication();
         }
 
+
         private void configureProxyAuthentication() {
                 if (System.getProperty("http.proxyUser") != null) {
                         Authenticator.setDefault(new SystemPropertiesProxyAuthenticator());
                 }
         }
+
 
         public void download(URI address, File destination) throws Exception {
                 if (destination.exists()) {
@@ -57,6 +51,7 @@ public class DefaultDownloader implements Downloader {
                 destination.getParentFile().mkdirs();
                 downloadInternal(address, destination);
         }
+
 
         private void downloadInternal(URI address, File destination) throws Exception {
                 OutputStream out = null;
@@ -98,6 +93,7 @@ public class DefaultDownloader implements Downloader {
                 }
         }
 
+
         private String calculateUserAgent() {
                 String appVersion = applicationVersion;
 
@@ -110,6 +106,7 @@ public class DefaultDownloader implements Downloader {
                 return String.format("%s/%s (%s;%s;%s) (%s;%s;%s)", applicationName, appVersion, osName, osVersion, osArch,
                                      javaVendor, javaVersion, javaVendorVersion);
         }
+
 
         private static class SystemPropertiesProxyAuthenticator extends Authenticator {
                 @Override

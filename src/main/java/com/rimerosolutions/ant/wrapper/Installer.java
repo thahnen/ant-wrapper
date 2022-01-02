@@ -13,39 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.rimerosolutions.ant.wrapper;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Formatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.*;
+import java.util.zip.*;
+
 
 /**
  * @author Hans Dockter
  */
 public class Installer {
-
         public static final String DEFAULT_DISTRIBUTION_PATH = "wrapper/dists";
-        private final Downloader download;
+        private final DefaultDownloader download;
         private final PathAssembler pathAssembler;
 
-        public Installer( Downloader download, PathAssembler pathAssembler ) {
+
+        public Installer( DefaultDownloader download, PathAssembler pathAssembler ) {
                 this.download = download;
                 this.pathAssembler = pathAssembler;
         }
+
 
         public File createDist( WrapperConfiguration configuration ) throws Exception {
                 URI distributionUrl = configuration.getDistribution();
@@ -94,6 +83,7 @@ public class Installer {
                 return dirs.get( 0 );
         }
 
+
         private List<File> listDirs( File distDir ) {
                 List<File> dirs = new ArrayList<File>();
 
@@ -108,6 +98,7 @@ public class Installer {
 
                 return dirs;
         }
+
 
         private void setExecutablePermissions( File appHome ) {
                 if ( isWindows() ) {
@@ -150,6 +141,7 @@ public class Installer {
                 }
         }
 
+
         private boolean isWindows() {
                 String osName = System.getProperty( "os.name" ).toLowerCase( Locale.US );
 
@@ -159,6 +151,7 @@ public class Installer {
 
                 return false;
         }
+
 
         private boolean deleteDir( File dir ) {
                 if ( dir.isDirectory() ) {
@@ -176,6 +169,7 @@ public class Installer {
                 // The directory is now empty so delete it
                 return dir.delete();
         }
+
 
         public void unzip( File zip, File dest )
                 throws IOException {
@@ -198,6 +192,7 @@ public class Installer {
                 zipFile.close();
         }
 
+
         public void copyInputStream( InputStream in, OutputStream out )
                 throws IOException {
                 byte[] buffer = new byte[1024];
@@ -210,5 +205,4 @@ public class Installer {
                 in.close();
                 out.close();
         }
-
 }

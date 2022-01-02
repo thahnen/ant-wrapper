@@ -15,7 +15,6 @@
  */
 package com.rimerosolutions.ant.wrapper.tasks;
 
-
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -33,12 +32,9 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
-import org.apache.tools.ant.taskdefs.Copy;
-import org.apache.tools.ant.types.Resource;
-import org.apache.tools.ant.types.resources.FileResource;
 import org.apache.tools.ant.util.FileUtils;
+
 
 /**
  * Ant wrapper task.

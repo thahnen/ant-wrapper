@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.thahnen
+package com.github.thahnen.logging
 
 
 /**
@@ -21,7 +21,7 @@ package com.github.thahnen
  *
  *  @author Tobias Hahnen
  */
-class Logger(private val quiet: Boolean) : Appendable {
+internal class Logger(private val quiet: Boolean) : Appendable {
     /** Override append function */
     override fun append(p0: CharSequence?): Appendable {
         when { !quiet -> System.out.append(p0) }
@@ -45,8 +45,6 @@ class Logger(private val quiet: Boolean) : Appendable {
 
     /** Log a simple message */
     fun log(message: String) {
-        when {
-            !quiet -> println(message)
-        }
+        when { !quiet -> println(message) }
     }
 }

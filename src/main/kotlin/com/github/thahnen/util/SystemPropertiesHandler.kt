@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.thahnen
+package com.github.thahnen.util
 
 import java.io.*
 import java.util.*
@@ -21,11 +21,22 @@ import kotlin.collections.HashMap
 
 
 /**
- *  ...
+ *  Utilities on system properties
+ *
+ *  @author Tobias Hahnen
  */
 internal class SystemPropertiesHandler {
     companion object {
+        /** System property key prefix */
         private const val SYSTEM_PROP_PREFIX = "systemProp."
+
+
+        /** Converts a property object to a Hash Map */
+        internal fun convertSystemProperties(properties: Properties) : Map<String, String> {
+            val result = HashMap<String, String>()
+            properties.keys.forEach { result[it.toString()] = properties[it.toString()].toString() }
+            return result
+        }
 
 
         /**
@@ -44,7 +55,10 @@ internal class SystemPropertiesHandler {
                 try {
                     FileInputStream(propertiesFile).use { properties.load(it) }
                 } catch (err: IOException) {
-                    throw RuntimeException("Error when loading properties file=$propertiesFile", err)
+                    throw RuntimeException(
+                        "[${SystemPropertiesHandler::class.simpleName} -> getSystemProperties] Error when loading " +
+                        "properties file=$propertiesFile", err
+                    )
                 }
 
                 properties.keys.forEach {

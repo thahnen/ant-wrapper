@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.thahnen
+package com.github.thahnen.wrapper
 
 import java.net.URI
+
+import com.github.thahnen.*
 
 
 /**
@@ -23,9 +25,10 @@ import java.net.URI
  *
  *  @author Tobias Hahnen
  */
-internal data class WrapperConfiguration(var distribution: URI,
-                                         var distributionBase: String = PathAssembler.ANT_USER_HOME_STRING,
-                                         var distributionPath: String = Install.DEFAULT_DISTRIBUTION_PATH,
-                                         var distributionSha256Sum: String,
-                                         var zipBase: String = PathAssembler.ANT_USER_HOME_STRING,
-                                         var zipPath: String = Install.DEFAULT_DISTRIBUTION_PATH)
+internal data class Configuration(var distribution: URI,
+                                  var distributionBase: String = PathAssembler.ANT_USER_HOME_STRING,
+                                  var distributionPath: String = Install.DEFAULT_DISTRIBUTION_PATH,
+                                  var distributionSha256Sum: String?,
+                                  var zipBase: String = PathAssembler.ANT_USER_HOME_STRING,
+                                  var zipPath: String = Install.DEFAULT_DISTRIBUTION_PATH
+)

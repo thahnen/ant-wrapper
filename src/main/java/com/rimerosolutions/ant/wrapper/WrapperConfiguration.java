@@ -17,8 +17,8 @@ package com.rimerosolutions.ant.wrapper;
 
 import java.net.URI;
 
-public class WrapperConfiguration {
 
+public class WrapperConfiguration {
         public static final String ALWAYS_UNPACK_ENV = "MAVEN_WRAPPER_ALWAYS_UNPACK";
         public static final String ALWAYS_DOWNLOAD_ENV = "MAVEN_WRAPPER_ALWAYS_DOWNLOAD";
         private boolean alwaysUnpack = Boolean.parseBoolean( System.getenv( ALWAYS_UNPACK_ENV ) );
@@ -29,10 +29,10 @@ public class WrapperConfiguration {
         private String zipBase = PathAssembler.ANT_USER_HOME_STRING;
         private String zipPath = Installer.DEFAULT_DISTRIBUTION_PATH;
 
+
         public boolean isAlwaysDownload() {
                 return alwaysDownload;
         }
-
         public void setAlwaysDownload( boolean alwaysDownload ) {
                 this.alwaysDownload = alwaysDownload;
         }
@@ -40,7 +40,6 @@ public class WrapperConfiguration {
         public boolean isAlwaysUnpack() {
                 return alwaysUnpack;
         }
-
         public void setAlwaysUnpack( boolean alwaysUnpack ) {
                 this.alwaysUnpack = alwaysUnpack;
         }
@@ -48,7 +47,6 @@ public class WrapperConfiguration {
         public URI getDistribution() {
                 return distribution;
         }
-
         public void setDistribution( URI distribution ) {
                 this.distribution = distribution;
         }
@@ -56,7 +54,6 @@ public class WrapperConfiguration {
         public String getDistributionBase() {
                 return distributionBase;
         }
-
         public void setDistributionBase( String distributionBase ) {
                 this.distributionBase = distributionBase;
         }
@@ -64,7 +61,6 @@ public class WrapperConfiguration {
         public String getDistributionPath() {
                 return distributionPath;
         }
-
         public void setDistributionPath( String distributionPath ) {
                 this.distributionPath = distributionPath;
         }
@@ -72,7 +68,6 @@ public class WrapperConfiguration {
         public String getZipBase() {
                 return zipBase;
         }
-
         public void setZipBase( String zipBase ) {
                 this.zipBase = zipBase;
         }
@@ -80,7 +75,6 @@ public class WrapperConfiguration {
         public String getZipPath() {
                 return zipPath;
         }
-
         public void setZipPath( String zipPath ) {
                 this.zipPath = zipPath;
         }

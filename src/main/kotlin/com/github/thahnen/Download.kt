@@ -18,11 +18,15 @@ package com.github.thahnen
 import java.io.*
 import java.net.*
 import java.util.*
-import kotlin.collections.HashMap
+
+import com.github.thahnen.logging.Logger
+import com.github.thahnen.util.multipleLet
 
 
 /**
- *  ...
+ *  Utilities to download Ant installation
+ *
+ *  @author Tobias Hahnen
  */
 internal class Download constructor(private val logger: Logger, private val appName: String,
                                     private val appVersion: String, private val systemProperties: Map<String, String>) {
@@ -33,9 +37,7 @@ internal class Download constructor(private val logger: Logger, private val appN
             if (requestorType == RequestorType.PROXY) {
                 val protocol = requestingURL.protocol
                 System.getProperty("$protocol.proxyUser")?.let {
-                    PasswordAuthentication(
-                        it, (System.getProperty("$protocol.proxyPassword") ?: "").toCharArray()
-                    )
+                    PasswordAuthentication(it, (System.getProperty("$protocol.proxyPassword") ?: "").toCharArray())
                 }
             }
 
@@ -44,76 +46,35 @@ internal class Download constructor(private val logger: Logger, private val appN
     }
 
 
-    /** Initialization */
-    init {
-        systemProperties["http.proxyUser"]?.let {
-            systemProperties["https.proxyUser"]?.let {
-                Authenticator.setDefault(ProxyAuthenticator())
-            }
-        }
-    }
-
-
+    /** Companion object */
     companion object {
-        const val UNKNOWN_VERSION = "0"
+        // Necessary constants used directly when downloading
         const val BUFFER_SIZE = 10 * 1024
         const val CONNECTION_TIMEOUT_MILLISECONDS = 10 * 1000
         const val READ_TIMEOUT_MILLISECONDS = 10 * 1000
 
-
-        /**
-         *  ...
-         */
-        private fun convertSystemProperties(properties: Properties) : Map<String, String?> {
-            val result = HashMap<String, String?>()
-            properties.keys.forEach {
-                result[it.toString()] = properties[it.toString()]?.toString()
-            }
-
-            return result
-        }
+        const val PROP_PROXY_USER_HTTP = "http.proxyUser"
+        const val PROP_PROXY_USER_HTTPS = "https.proxyUser"
+        const val PROP_ANT_WRAPPER_USER = "ant.wrapperUser"
+        const val PROP_ANT_WRAPPER_PASSWORD = "ant.wrapperPassword"
 
 
-        /**
-         *  ...
-         */
+        /** Creates a safe URI from a URI provided */
         @Throws(RuntimeException::class)
         internal fun safeUri(uri: URI) : URI {
             try {
                 return URI(uri.scheme, null, uri.host, uri.port, uri.path, uri.query, uri.fragment)
             } catch (err: URISyntaxException) {
-                throw RuntimeException("Failed to parse URI", err)
+                throw RuntimeException("[${Download::class.simpleName} -> safeUri] Failed to parse URI", err)
             }
         }
+    }
 
 
-        @Throws(RuntimeException::class)
-        internal fun base64Encode(userInfo: String) : String {
-            with (Download::class.java.classLoader) {
-                try {
-                    val encoder = this.loadClass("java.util.Base64").getMethod("getEncoder").invoke(null)
-                    return this.loadClass(
-                        "java.util.Base64\$Encoder"
-                    ).getMethod(
-                        "encodeToString", ByteArray::class.java
-                    ).invoke(
-                        encoder, arrayOf(userInfo.toByteArray())
-                    ) as String
-                } catch (java70rOrEarlier: Exception) {
-                    return this.loadClass(
-                        "javax.xml.bind.DatatypeConverter"
-                    ).getMethod(
-                        "printBase64Binary", ByteArray::class.java
-                    ).invoke(
-                        null, arrayOf(userInfo.toByteArray())
-                    ) as String
-                } catch (java50rEarlier: Exception) {
-                    throw RuntimeException(
-                        "Downloading Ant distributions with HTTP Basic Authentication is not supported on your JVM",
-                        java50rEarlier
-                    )
-                }
-            }
+    /** Initialization */
+    init {
+        multipleLet(systemProperties[PROP_PROXY_USER_HTTP], systemProperties[PROP_PROXY_USER_HTTPS]) {
+            Authenticator.setDefault(ProxyAuthenticator())
         }
     }
 
@@ -125,10 +86,8 @@ internal class Download constructor(private val logger: Logger, private val appN
      *  @return username - password combination
      */
     private fun calculateUserInfo(uri: URI) : String? {
-        systemProperties["ant.wrapperUser"]?.let { user ->
-            systemProperties["ant.wrapperPassword"]?.let { password ->
-                return "$user:$password"
-            }
+        multipleLet(systemProperties[PROP_ANT_WRAPPER_USER], systemProperties[PROP_ANT_WRAPPER_PASSWORD]) { (u, p) ->
+            return "$u:$p"
         }
 
         return uri.userInfo
@@ -161,17 +120,22 @@ internal class Download constructor(private val logger: Logger, private val appN
 
         when {
             "https" != address.scheme -> logger.log(
-                "WARNING - Using HTTP Basic Authentication over an insecure connection to download the Ant " +
-                "distribution. Please consider using HTTPS."
+                "[${this::class.simpleName}.addBasicAuthentication - WARNING] - Using HTTP Basic Authentication over " +
+                "an insecure connection to download the Ant distribution. Please consider using HTTPS."
             )
         }
 
-        connection.setRequestProperty("Authorization", "Basic ${base64Encode(userInfo)}")
+        connection.setRequestProperty(
+            "Authorization", "Basic ${Base64.getEncoder().encodeToString(userInfo.toByteArray())}"
+        )
     }
 
 
+    /** Actual download */
     @Throws(IOException::class)
-    private fun downloadInternal(address: URI, destination: File) {
+    fun download(address: URI, destination: File) {
+        destination.parentFile.mkdirs()
+
         var out: OutputStream? = null
         var inp: InputStream? = null
         val safeUrl = safeUri(address).toURL()
@@ -190,30 +154,22 @@ internal class Download constructor(private val logger: Logger, private val appN
 
             val buffer = ByteArray(BUFFER_SIZE)
 
-            var downloadedLength: Long = 0
-
             do {
                 val numRead = inp.read(buffer)
                 when {
                     numRead < 0                             -> break
-                    Thread.currentThread().isInterrupted    -> throw IOException("Download was interrupted!")
+                    Thread.currentThread().isInterrupted    -> throw IOException(
+                        "[${this::class.simpleName}.download] Download was interrupted!"
+                    )
                 }
-
-                downloadedLength += numRead
 
                 out.write(buffer, 0, numRead)
             } while (true)
         } catch (err: SocketTimeoutException) {
-            throw IOException("Downloading from $safeUrl failed: timeout", err)
+            throw IOException("[${this::class.simpleName}.download] Downloading from $safeUrl failed: timeout", err)
         } finally {
             inp?.let { inp.close() }
             out?.let { out.close() }
         }
-    }
-
-
-    fun download(address: URI, destination: File) {
-        destination.parentFile.mkdirs()
-        downloadInternal(address, destination)
     }
 }

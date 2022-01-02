@@ -16,10 +16,13 @@
 package com.github.thahnen
 
 import java.io.*
-import java.security.MessageDigest
 import java.util.*
 import java.util.concurrent.Callable
-import java.util.zip.ZipFile
+
+import com.github.thahnen.extension.*
+import com.github.thahnen.logging.Logger
+import com.github.thahnen.util.*
+import com.github.thahnen.wrapper.Configuration
 
 
 /**
@@ -41,6 +44,7 @@ internal class Install(private val logger: Logger, val download: Download, val p
     }
 
 
+    /** Companion object */
     companion object {
         internal const val DEFAULT_DISTRIBUTION_PATH = "wrapper/dists"
     }
@@ -50,87 +54,9 @@ internal class Install(private val logger: Logger, val download: Download, val p
     private val exclusiveFileAccessManager = ExclusiveFileAccessManager(120000, 200)
 
 
-    /**
-     *  Copy data from input to output stream
-     *
-     *  @param inp input stream
-     *  @param out output stream
-     *  @throws IOException when working with streams fails
-     */
-    @Throws(IOException::class)
-    private fun copyInputStream(inp: InputStream, out: OutputStream) {
-        val buffer = ByteArray(1024)
-
-        do {
-            val len = inp.read(buffer)
-            when {
-                len < 0 -> break
-            }
-
-            out.write(buffer, 0, len)
-        } while (true)
-
-        inp.close()
-        out.close()
-    }
-
-
-    /**
-     *  Unzip a specific file to a destination provided
-     *
-     *  @param zip ZIP archive to unzip
-     *  @param dest destination to unzip to
-     *  @throws IOException when working with ZIP archive did not work
-     */
-    @Throws(IOException::class)
-    private fun unzip(zip: File, dest: File) {
-        val zipFile = ZipFile(zip)
-        zipFile.use {
-            val entries = it.entries()
-            while (entries.hasMoreElements()) {
-                val entry = entries.nextElement()
-                if (entry.isDirectory) {
-                    File(dest, entry.name).mkdirs()
-                    continue
-                }
-
-                val out = BufferedOutputStream(FileOutputStream(File(dest, entry.name)))
-                out.use { s ->
-                    copyInputStream(it.getInputStream(entry), s)
-                }
-            }
-        }
-    }
-
-
-    /**
-     *  Deletes a directory recursively
-     *
-     *  @param dir directory to be deleted
-     *  @return whether deletion was a success or not
-     */
-    private fun deleteDir(dir: File) : Boolean {
-        if (dir.isDirectory) {
-            dir.list()?.forEach {
-                when {
-                    !deleteDir(File(dir, it)) -> return false
-                }
-            }
-        }
-
-        return dir.delete()
-    }
-
-
-    /** Checks if current system is Windows */
-    private fun isWindows() : Boolean = System.getProperty("os.name").toLowerCase(Locale.US).indexOf("windows") > -1
-
-
     /** Sets execution permissions of ant command if not Windows */
     private fun setExecutionPermissions(antHome: File) {
-        when {
-            isWindows() -> return
-        }
+        when { isWindows() -> return }
 
         val antCommand = File(antHome, "bin/ant")
         var errorMessage: String? = null
@@ -158,28 +84,11 @@ internal class Install(private val logger: Logger, val download: Download, val p
         }
 
         errorMessage?.let {
-            logger.log("Could not set executable permissions for: ${antCommand.absolutePath}")
+            logger.log(
+                "[${this::class.simpleName}.setExecutionPolicy] Could not set executable permissions for: " +
+                antCommand.absolutePath
+            )
         }
-    }
-
-
-    /**
-     *  List all directories inside a given directory
-     *
-     *  @param distDir possible directory
-     *  @return all sub directories
-     */
-    private fun listDirs(distDir: File) : List<File> {
-        val dirs = ArrayList<File>()
-        if (distDir.exists()) {
-            distDir.listFiles()?.forEach {
-                when {
-                    it.isDirectory -> dirs.add(it)
-                }
-            }
-        }
-
-        return dirs
     }
 
 
@@ -191,22 +100,23 @@ internal class Install(private val logger: Logger, val download: Download, val p
      *  @return specific installation check
      */
     private fun verifyDistributionRoot(distDir: File, distributionDescription: String) : InstallCheck {
-        val dirs = listDirs(distDir)
+        val dirs = distDir.listDirs()
         when {
             dirs.isEmpty() -> return InstallCheck.failure(
-                "Ant distribution $distributionDescription does not contain any directories. Expected to find " +
-                "exactly 1 directory!"
+                "[${this::class.simpleName}.verifyDistributionRoot] Ant distribution $distributionDescription does " +
+                "not contain any directories. Expected to find exactly 1 directory!"
             )
             dirs.size != 1 -> return InstallCheck.failure(
-                "Ant distribution $distributionDescription contains too many directories. Expected to find exactly " +
-                "1 directory!"
+                "[${this::class.simpleName}.verifyDistributionRoot] Ant distribution $distributionDescription " +
+                "contains too many directories. Expected to find exactly 1 directory!"
             )
         }
 
         val antHome = dirs[0]
-        BootstrapMainStarter.findLauncherJar(antHome) ?: run {
+        findLauncherJar(antHome) ?: run {
             return InstallCheck.failure(
-                "Ant distribution $distributionDescription does not appear to contain an Ant distribution!"
+                "[${this::class.simpleName}.verifyDistributionRoot] Ant distribution $distributionDescription does " +
+                "not appear to contain an Ant distribution!"
             )
         }
 
@@ -215,53 +125,27 @@ internal class Install(private val logger: Logger, val download: Download, val p
 
 
     /**
-     *  Calculate the SHA-256 hash of a file
+     *  Verify that downloaded file has the correct checksum
      *
-     *  @param file to get the hash from
-     *  @return hash as string
+     *  @param sourceURL Ant installation download URL
+     *  @param localZipFile file object of downloaded ZIP archive
+     *  @param expectedSum optional expected checksum
      */
-    private fun calculateSha256Sum(file: File) : String {
-        val md = MessageDigest.getInstance("SHA-256")
-        val fis = FileInputStream(file)
-
-        fis.use {
-            var n = 0
-            val buffer = ByteArray(4096)
-            while (n != -1) {
-                n = it.read(buffer)
-                if (n > 0) {
-                    md.update(buffer, 0, n)
-                }
-            }
-        }
-
-        val byteData = md.digest()
-        val hexString = StringBuffer()
-        byteData.forEach {
-            val hex = Integer.toHexString(0xff and it.toInt())
-            when (hex.length) {
-                1 -> hexString.append('0')
-            }
-            hexString.append(hex)
-        }
-
-        return hexString.toString()
-    }
-
-
     @Throws(RuntimeException::class)
     private fun verifyDownloadCheckSum(sourceURL: String, localZipFile: File, expectedSum: String?) {
         expectedSum?.let {
-            val actualSum = calculateSha256Sum(localZipFile)
-            if (expectedSum != actualSum) {
-                localZipFile.delete()
-                throw RuntimeException(
-                    "Verification of Ant distribution failed\n\nYour Ant distribution may have been tampered with.\n" +
-                    "Confirm that the 'distributionSha256Sum' property in your ant-wrapper.properties file is " +
-                    "correct and you are downloading the wrapper from a trusted source.\n\n Distribution URL: " +
-                    "$sourceURL\nDownload Location: ${localZipFile.absolutePath}\nExpected checksum: $expectedSum\n" +
-                    "  Actual checksum: $actualSum\n"
-                )
+            with (localZipFile.calculateSha256Sum()) {
+                if (expectedSum != this) {
+                    localZipFile.delete()
+                    throw RuntimeException(
+                        "[${this::class.simpleName}.verifyDownloadCheckSum] Verification of Ant distribution " +
+                        "failed\n\nYour Ant distribution may have been tampered with.\nConfirm that the " +
+                        "'distributionSha256Sum' property in your ant-wrapper.properties file is correct and you are " +
+                        "downloading the wrapper from a trusted source.\n\n Distribution URL: $sourceURL\nDownload " +
+                        "Location: ${localZipFile.absolutePath}\nExpected checksum: $expectedSum\n  Actual " +
+                        "checksum: $this\n"
+                    )
+                }
             }
         }
     }
@@ -270,7 +154,7 @@ internal class Install(private val logger: Logger, val download: Download, val p
     /**
      *  ...
      */
-    fun createDist(configuration: WrapperConfiguration) : File {
+    fun createDist(configuration: Configuration) : File {
         val distributionURL = configuration.distribution
         val distributionSha256Sum = configuration.distributionSha256Sum
         val localDistribution = pathAssembler.getDistribution(configuration)
@@ -294,23 +178,29 @@ internal class Install(private val logger: Logger, val download: Download, val p
             if (needsDownload) {
                 val tmpZipFile = File(localZipFile.parentFile, "${localZipFile.name}.part")
                 tmpZipFile.delete()
-                logger.log("Downloading $safeDistributionURL")
+
+                logger.log("[${this::class.simpleName}.createDist] Downloading $safeDistributionURL")
+
                 download.download(distributionURL, tmpZipFile)
                 tmpZipFile.renameTo(localZipFile)
             }
 
-            listDirs(distDir).forEach {
-                logger.log("Deleting directory ${it.absolutePath}")
-                deleteDir(it)
+            distDir.listDirs().forEach {
+                logger.log("[${this::class.simpleName}.createDist] Deleting directory ${it.absolutePath}")
+
+                it.deleteDir()
             }
 
             verifyDownloadCheckSum(configuration.distribution.toString(), localZipFile, distributionSha256Sum)
 
             try {
-                unzip(localZipFile, distDir)
+                localZipFile.unzip(distDir)
             } catch (err: IOException) {
-                logger.log("Could not unzip ${localZipFile.absolutePath} to ${distDir.absolutePath}.")
-                logger.log("Reason: ${err.message}")
+                logger.log(
+                    "[${this::class.simpleName}.createDist] Could not unzip ${localZipFile.absolutePath} to " +
+                    "${distDir.absolutePath}. Reason: ${err.message}"
+                )
+
                 throw err
             }
 

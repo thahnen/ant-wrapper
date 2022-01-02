@@ -15,13 +15,10 @@
  */
 package com.rimerosolutions.ant.wrapper;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.*;
+import java.net.*;
 import java.util.Properties;
+
 
 /**
  * @author Hans Dockter
@@ -40,9 +37,11 @@ public class WrapperExecutor {
         private final Appendable warningOutput;
         private final WrapperConfiguration config = new WrapperConfiguration();
 
+
         public static WrapperExecutor forProjectDirectory(File projectDir, Appendable warningOutput) {
                 return new WrapperExecutor(new File(projectDir, WRAPPER_PROPERTIES_PATH), new Properties(), warningOutput);
         }
+
 
         public static WrapperExecutor forWrapperPropertiesFile(File propertiesFile, Appendable warningOutput) {
                 if (!propertiesFile.exists()) {
@@ -50,6 +49,7 @@ public class WrapperExecutor {
                 }
                 return new WrapperExecutor(propertiesFile, new Properties(), warningOutput);
         }
+
 
         WrapperExecutor(File propertiesFile, Properties properties, Appendable warningOutput) {
                 this.properties = properties;
@@ -69,6 +69,7 @@ public class WrapperExecutor {
                 }
         }
 
+
         private URI prepareDistributionUri() throws URISyntaxException {
                 URI source = readDistroUrl();
                 if (source.getScheme() == null) {
@@ -80,6 +81,7 @@ public class WrapperExecutor {
                 }
         }
 
+
         private URI readDistroUrl() throws URISyntaxException {
                 if (properties.getProperty(DISTRIBUTION_URL_PROPERTY) != null) {
                         return new URI(getProperty(DISTRIBUTION_URL_PROPERTY));
@@ -88,6 +90,7 @@ public class WrapperExecutor {
                 reportMissingProperty(DISTRIBUTION_URL_PROPERTY);
                 return null; // previous line will fail
         }
+
 
         private static void loadProperties(File propertiesFile, Properties properties) throws IOException {
                 InputStream in = null;
@@ -102,6 +105,7 @@ public class WrapperExecutor {
                 }
         }
 
+
         /**
          * Returns the distribution which this wrapper will use. Returns null if
          * no wrapper meta-data was found in the specified project directory.
@@ -110,6 +114,7 @@ public class WrapperExecutor {
                 return config.getDistribution();
         }
 
+
         /**
          * Returns the configuration for this wrapper.
          */
@@ -117,14 +122,17 @@ public class WrapperExecutor {
                 return config;
         }
 
+
         public void execute(String[] args, Installer install, BootstrapMainStarter bootstrapMainStarter) throws Exception {
                 File antHome = install.createDist(config);
                 bootstrapMainStarter.start(args, antHome);
         }
 
+
         private String getProperty(String propertyName) {
                 return getProperty(propertyName, null);
         }
+
 
         private String getProperty(String propertyName, String defaultValue) {
                 String value = properties.getProperty(propertyName);
@@ -136,6 +144,7 @@ public class WrapperExecutor {
                 }
                 return reportMissingProperty(propertyName);
         }
+
 
         private String reportMissingProperty(String propertyName) {
                 throw new RuntimeException(String.format("No value with key '%s' specified in wrapper properties file '%s'.", propertyName,

@@ -17,8 +17,9 @@ package com.github.thahnen
 
 import java.io.File
 import java.lang.RuntimeException
-import java.math.BigInteger
-import java.security.MessageDigest
+
+import com.github.thahnen.extension.*
+import com.github.thahnen.wrapper.Configuration
 
 
 /**
@@ -32,60 +33,10 @@ internal class PathAssembler(private val antUserHome: File, private val projectD
     data class LocalDistribution(val distZip: File, val distDir: File)
 
 
+    /** Companion object */
     companion object {
         const val ANT_USER_HOME_STRING  = "ANT_USER_HOME"
         const val PROJECT_STRING        = "PROJECT"
-
-
-        /**
-         *  Creates a MD5 hash of a string provided
-         *
-         *  @param string to get the hash from
-         *  @return MD5-Hash of parameter provided
-         *  @throws RuntimeException when hashing failed
-         */
-        @Throws(RuntimeException::class)
-        private fun getHash(string: String) : String {
-            try {
-                val messageDigest = MessageDigest.getInstance("MD5")
-                messageDigest.update(string.toByteArray())
-                return BigInteger(1, messageDigest.digest()).toString(36)
-            } catch (err: Exception) {
-                throw RuntimeException("Could not hash input string.", err)
-            }
-        }
-
-
-        /**
-         *  Removes the extension of a filename
-         *
-         *  @param name filename to strip extension
-         *  @return file name without extension
-         */
-        private fun removeExtension(name: String) : String {
-            with (name.lastIndexOf(".")) {
-                return when {
-                    this < 0    -> name
-                    else        -> name.substring(this + 1)
-                }
-            }
-        }
-
-
-        /**
-         *  Removes the folder structure from a URI
-         *
-         *  @param distUrl distribution URI to get name from
-         *  @return name without folder structure
-         */
-        private fun getDistName(distUrl: String) : String {
-            with (distUrl.lastIndexOf("/")) {
-                return when {
-                    this < 0    -> distUrl
-                    else        -> distUrl.substring(this + 1)
-                }
-            }
-        }
     }
 
 
@@ -100,21 +51,9 @@ internal class PathAssembler(private val antUserHome: File, private val projectD
     private fun getBaseDir(base: String) : File = when (base) {
         ANT_USER_HOME_STRING    -> antUserHome
         PROJECT_STRING          -> projectDirectory
-        else                    -> throw RuntimeException("Base: $base is unknown.")
-    }
-
-
-    /**
-     *  Get root directory name based on distribution name and wrapper configuration
-     *
-     *  @param distName distribution name
-     *  @param configuration Ant wrapper configuration
-     *  @return URI safe root directory name
-     *  @throws RuntimeException when converting to safe URI fails
-     */
-    @Throws(RuntimeException::class)
-    private fun rootDirName(distName: String, configuration: WrapperConfiguration) : String {
-        return "$distName/${getHash(Download.safeUri(configuration.distribution).toString())}"
+        else                    -> throw RuntimeException(
+            "[${this::class.simpleName}.getBaseDir] Base: $base is unknown."
+        )
     }
 
 
@@ -124,9 +63,11 @@ internal class PathAssembler(private val antUserHome: File, private val projectD
      *  @param configuration Ant wrapper configuration
      *  @return distribution created using wrapper configuration
      */
-    fun getDistribution(configuration: WrapperConfiguration) : LocalDistribution {
-        val baseName = getDistName(configuration.distribution.path)
-        val rootDirName = rootDirName(removeExtension(baseName), configuration)
+    fun getDistribution(configuration: Configuration) : LocalDistribution {
+        val baseName = configuration.distribution.path.getFileName()
+        val rootDirName = baseName.removeExtension() +
+                            "/${Download.safeUri(configuration.distribution).toString().getHash()}"
+
         return LocalDistribution(
             File(getBaseDir(configuration.distributionBase), "${configuration.distributionPath}/$rootDirName"),
             File(getBaseDir(configuration.zipBase), "${configuration.zipPath}/$rootDirName/$baseName")

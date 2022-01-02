@@ -16,16 +16,12 @@
 package com.rimerosolutions.ant.wrapper;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 
-/**
- * Hello world!
- *
- */
+
 public class AntWrapperMain {
-
         public static final String DEFAULT_ANT_USER_HOME = System.getProperty("user.home") + "/.ant";
+
 
         public static void main(String[] args) throws Exception {
                 File defaultAntUserHomeDir = new File(DEFAULT_ANT_USER_HOME);
@@ -53,13 +49,16 @@ public class AntWrapperMain {
                                                                                                    "ant.properties")));
         }
 
+
         private static File rootDir(File wrapperJar) {
                 return wrapperJar.getParentFile().getParentFile().getParentFile();
         }
 
+
         private static File wrapperProperties(File wrapperJar) {
                 return new File(wrapperJar.getParent(), wrapperJar.getName().replaceFirst("\\.jar$", ".properties"));
         }
+
 
         private static File wrapperJar() {
                 URI location;
@@ -80,9 +79,11 @@ public class AntWrapperMain {
                 return new File(location.getPath());
         }
 
+
         static String wrapperVersion() {
                 return "1.0";
         }
+
 
         private static File antUserHome() {
                 String antUserHome = System.getProperty(PathAssembler.ANT_USER_HOME_STRING);

@@ -16,10 +16,9 @@
 package com.rimerosolutions.ant.wrapper;
 
 import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.*;
+import java.util.*;
+
 
 /**
  * @author Hans Dockter
@@ -33,6 +32,7 @@ public class BootstrapMainStarter {
         private static final String ANT_MAIN_CLASSNAME = "org.apache.tools.ant.Main";
         private static final String TOOLS_JAR_PATH_GENERAL = "lib/tools.jar";
         private static final String TOOLS_JAR_PATH_OSX = "lib/classes.jar";
+
 
         public void start(String[] args, File antHome) throws Exception {
                 File[] antJars = findBootstrapJars(antHome);
@@ -49,6 +49,7 @@ public class BootstrapMainStarter {
                 Class<?> mainClass = contextClassLoader.loadClass(ANT_MAIN_CLASSNAME);
                 mainClass.getMethod(MAIN_METHOD_NAME, String[].class).invoke(null, new Object[] { args });
         }
+
 
         private File[] findBootstrapJars(File antHome) {
                 List<File> bootstrapJars = new ArrayList<File>();
@@ -74,6 +75,5 @@ public class BootstrapMainStarter {
                 }
 
                 return bootstrapJars.toArray(new File[bootstrapJars.size()]);
-
         }
 }
