@@ -329,9 +329,9 @@ else
   fi
 fi
 
-LOCALCLASSPATH="$LOCALCLASSPATH:./wrapper/wrapper.jar"
+LOCALCLASSPATH="$LOCALCLASSPATH:./ant/wrapper/ant-wrapper.jar"
 
-ant_exec_command="exec \"$JAVACMD\" $ANT_OPTS -classpath \"$LOCALCLASSPATH\" -Dant.home=\"$ANT_HOME\" -Dant.library.dir=\"$ANT_LIB\" $ant_sys_opts com.rimerosolutions.ant.wrapper.AntWrapperMain"
+ant_exec_command="exec \"$JAVACMD\" $ANT_OPTS -classpath \"$LOCALCLASSPATH\" -Dant.home=\"$ANT_HOME\" -Dant.library.dir=\"$ANT_LIB\" $ant_sys_opts com.github.thahnen.AntWrapperMain"
 # $* 
 #-cp \"$CLASSPATH\""
 if $ant_exec_debug ; then
