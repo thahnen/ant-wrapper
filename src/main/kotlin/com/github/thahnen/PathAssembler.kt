@@ -69,8 +69,8 @@ internal class PathAssembler(private val antUserHome: File, private val projectD
                             "/${Download.safeUri(configuration.distribution).toString().getHash()}"
 
         return LocalDistribution(
-            File(getBaseDir(configuration.distributionBase), "${configuration.distributionPath}/$rootDirName"),
-            File(getBaseDir(configuration.zipBase), "${configuration.zipPath}/$rootDirName/$baseName")
+            File(getBaseDir(configuration.zipBase), "${configuration.zipPath}/$rootDirName/$baseName"),
+            File(getBaseDir(configuration.distributionBase), "${configuration.distributionPath}/$rootDirName")
         )
     }
 }
