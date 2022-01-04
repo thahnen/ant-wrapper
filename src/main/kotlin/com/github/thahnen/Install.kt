@@ -151,9 +151,7 @@ internal class Install(private val logger: Logger, val download: Download, val p
     }
 
 
-    /**
-     *  ...
-     */
+    /** Create distribution from Ant wrapper configuration provided */
     fun createDist(configuration: Configuration) : File {
         val distributionURL = configuration.distribution
         val distributionSha256Sum = configuration.distributionSha256Sum

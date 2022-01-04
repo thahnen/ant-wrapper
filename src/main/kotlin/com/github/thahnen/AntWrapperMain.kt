@@ -37,6 +37,7 @@ private const val ANT_QUIET_DETAILED_OPTION = "quiet"
 
 
 /** Main method to invoke Ant wrapper */
+@Throws(CommandLineArgumentException::class, RuntimeException::class)
 fun main(args: Array<String>) {
     val wrapperJar = wrapperJar()
     val rootDir = projectDir(wrapperJar)

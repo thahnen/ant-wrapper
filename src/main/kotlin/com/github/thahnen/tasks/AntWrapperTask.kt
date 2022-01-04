@@ -16,6 +16,7 @@
 package com.github.thahnen.tasks
 
 import java.io.*
+import java.net.URISyntaxException
 import java.util.*
 
 import org.apache.tools.ant.BuildException
@@ -43,6 +44,7 @@ open class AntWrapperTask : Task() {
 
 
     /** Override execute method */
+    @Throws(BuildException::class)
     override fun execute() {
         // store scripts in file system
         val classLoader = this::class.java.classLoader
@@ -102,8 +104,10 @@ open class AntWrapperTask : Task() {
      *
      *  @return stream of this wrapper Jar
      *  @throws BuildException when getting Jar as stream failed
+     *  @throws FileNotFoundException when code source location is not a valid file
+     *  @throws URISyntaxException when code source location is not a correct URI
      */
-    @Throws(BuildException::class)
+    @Throws(BuildException::class, FileNotFoundException::class, URISyntaxException::class)
     private fun getWrapperJarAsStream() : FileInputStream {
         val location = this::class.java.protectionDomain.codeSource.location.toURI()
 

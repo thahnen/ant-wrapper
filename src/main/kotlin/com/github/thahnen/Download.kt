@@ -59,7 +59,13 @@ internal class Download constructor(private val logger: Logger, private val appN
         const val PROP_ANT_WRAPPER_PASSWORD = "ant.wrapperPassword"
 
 
-        /** Creates a safe URI from a URI provided */
+        /**
+         *  Creates a safe URI from one provided
+         *
+         *  @param uri possible unsafe URI
+         *  @return safe URI
+         *  @throws RuntimeException when provided URI could not be parsed
+         */
         @Throws(RuntimeException::class)
         internal fun safeUri(uri: URI) : URI {
             try {
@@ -95,7 +101,7 @@ internal class Download constructor(private val logger: Logger, private val appN
 
 
     /**
-     *  Resolve user agent
+     *  Resolve user agent information
      *
      *  @return string passed as user agent
      */
@@ -110,9 +116,8 @@ internal class Download constructor(private val logger: Logger, private val appN
     /**
      *  Set basic authentication for connection
      *
-     *  @param address
-     *  @param connection
-     *  @return
+     *  @param address web address
+     *  @param connection current connection
      */
     private fun addBasicAuthentication(address: URI, connection: URLConnection) {
         val userInfo = calculateUserInfo(address)
@@ -131,7 +136,13 @@ internal class Download constructor(private val logger: Logger, private val appN
     }
 
 
-    /** Actual download */
+    /**
+     *  Download a file provided to given destination
+     *
+     *  @param address to download file from
+     *  @param destination output file
+     *  @throws IOException when download / file operations fail
+     */
     @Throws(IOException::class)
     fun download(address: URI, destination: File) {
         destination.parentFile.mkdirs()

@@ -36,9 +36,10 @@ internal class ExclusiveFileAccessManager(private val timeoutMS: Int, private va
      *  @param exclusiveFile file object to access
      *  @param task to be run when locked
      *  @return ???
-     *  @throws RuntimeException
+     *  @throws IOException when lock file operations failed
+     *  @throws RuntimeException when lock file operations failed
      */
-    @Throws(RuntimeException::class)
+    @Throws(IOException::class, RuntimeException::class)
     fun <T> access(exclusiveFile: File, task: Callable<T>) : T {
         val lockFile = File(exclusiveFile.parentFile, "${exclusiveFile.name}.lck")
         val lockFileDirectory = lockFile.parentFile

@@ -27,7 +27,9 @@ import java.util.zip.ZipFile
  *  Calculate the SHA-256 hash of a file
  *
  *  @return hash as string
+ *  @throws IOException when working with input stream fails
  */
+@Throws(IOException::class)
 internal fun File.calculateSha256Sum() : String {
     val md = MessageDigest.getInstance("SHA-256")
 
@@ -125,9 +127,8 @@ internal fun File.unzip(dest: File) {
  *
  *  @param inp stream to read from
  *  @throws IOException when writing to file fails
- *  @throws FileNotFoundException when actual file not found
  */
-@Throws(IOException::class, FileNotFoundException::class)
+@Throws(IOException::class)
 internal fun File.fromInputStream(inp: InputStream) {
     FileOutputStream(this).use {
         it.channel.use { out ->

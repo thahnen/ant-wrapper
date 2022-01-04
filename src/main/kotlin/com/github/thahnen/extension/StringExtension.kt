@@ -19,7 +19,13 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 
-/** Creates the MD5 hash from string */
+/**
+ *  Creates the MD5 hash from string
+ *
+ *  @return MD5 hash
+ *  @throws RuntimeException when input string could not be hashed
+ */
+@Throws(RuntimeException::class)
 internal fun String.getHash() : String {
     try {
         val md = MessageDigest.getInstance("MD5")

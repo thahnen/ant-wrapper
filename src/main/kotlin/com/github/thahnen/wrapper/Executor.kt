@@ -16,12 +16,11 @@
 package com.github.thahnen.wrapper
 
 import java.io.*
-import java.net.URI
+import java.net.*
 import java.util.*
 
 import com.github.thahnen.*
 import com.github.thahnen.util.findLauncherJar
-import java.net.URLClassLoader
 
 
 /**
@@ -41,7 +40,13 @@ internal class Executor(private val propertiesFile: File, private val properties
         const val ZIP_STORE_PATH_PROPERTY       = "zipStorePath"
 
 
-        /** Create object for Ant wrapper properties file */
+        /**
+         *  Create object based on Ant wrapper properties file
+         *
+         *  @param propertiesFile Ant wrapper properties file
+         *  @return Executor object
+         *  @throws RuntimeException when Ant wrapper properties file does not exist
+         */
         @Throws(RuntimeException::class)
         internal fun forWrapperPropertiesFile(propertiesFile: File) : Executor {
             when {
@@ -85,7 +90,16 @@ internal class Executor(private val propertiesFile: File, private val properties
     }
 
 
-    /** Get a property by key and fallback to default value if provided or fail if required */
+    /**
+     *  Get a property by key and fallback to default value if provided or fail if not found but required
+     *
+     *  @param propertyName key
+     *  @param defaultValue optional default value
+     *  @param required if property key must exist
+     *  @return property value as string if found, otherwise null
+     *  @throws RuntimeException when property key required but not found
+     */
+    @Throws(RuntimeException::class)
     private fun getProperty(propertyName: String, defaultValue: String? = null, required: Boolean = true) : String? {
         properties.getProperty(propertyName)?.let { return it }
         defaultValue?.let { return it }
@@ -101,7 +115,14 @@ internal class Executor(private val propertiesFile: File, private val properties
     }
 
 
-    /** Prepare the distribution URL */
+    /**
+     *  Prepare the distribution URL
+     *
+     *  @return distribution URL
+     *  @throws RuntimeException when distribution property key was not found
+     *  @throws URISyntaxException when distribution property value is no valid URI
+     */
+    @Throws(RuntimeException::class, URISyntaxException::class)
     private fun prepareDistributionUri() : URI {
         val source = properties.getProperty(DISTRIBUTION_URL_PROPERTY)?.let {
             URI(it)
@@ -114,8 +135,14 @@ internal class Executor(private val propertiesFile: File, private val properties
     }
 
 
-    /** Executes the actual Ant wrapper */
-    @Throws(RuntimeException::class)
+    /**
+     *  Executes the actual Ant wrapper
+     *  @param args command line args
+     *  @param install installation object
+     *  @throws ReflectiveOperationException when loading class or method fails
+     *  @throws RuntimeException when Ant launcher JAR could not be found
+     */
+    @Throws(ReflectiveOperationException::class, RuntimeException::class)
     fun execute(args: Array<String>, install: Install) {
         with (install.createDist(config!!)) {
             val antJar = findLauncherJar(this)

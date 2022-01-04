@@ -16,7 +16,6 @@
 package com.github.thahnen
 
 import java.io.File
-import java.lang.RuntimeException
 
 import com.github.thahnen.extension.*
 import com.github.thahnen.wrapper.Configuration
@@ -62,7 +61,9 @@ internal class PathAssembler(private val antUserHome: File, private val projectD
      *
      *  @param configuration Ant wrapper configuration
      *  @return distribution created using wrapper configuration
+     *  @throws RuntimeException when parsing URI failed or base unknown
      */
+    @Throws(RuntimeException::class)
     fun getDistribution(configuration: Configuration) : LocalDistribution {
         val baseName = configuration.distribution.path.getFileName()
         val rootDirName = baseName.removeExtension() +

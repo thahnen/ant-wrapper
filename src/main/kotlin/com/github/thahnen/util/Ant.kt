@@ -37,6 +37,7 @@ private const val ANT_LAUNCHER_JAR              = "ant-launcher.jar"
  *  @param rootDir Ant project directory
  *  @throws RuntimeException when loading properties file fails
  */
+@Throws(RuntimeException::class)
 internal fun addSystemProperties(systemProperties: Properties, antUserHome: File, rootDir: File) {
     listOf(rootDir, antUserHome).forEach {
         systemProperties.putAll(SystemPropertiesHandler.getSystemProperties(File(it, ANT_PROPERTIES_NAME)))
@@ -50,6 +51,9 @@ internal fun addSystemProperties(systemProperties: Properties, antUserHome: File
  *  - system property
  *  - environment variable
  *  - default
+ *
+ *  @param options parameters from command line
+ *  @param option specific option tried to be resolved
  */
 internal fun antUserHome(options: ParsedCommandLine, option: String) : File {
     return when (options.hasOption(option)) {
@@ -86,6 +90,4 @@ internal fun projectDir(wrapperJar: File) : File = wrapperJar.parentFile.parentF
 
 
 /** Get Ant wrapper properties file */
-internal fun wrapperProperties(wrapperJar: File) : File = File(
-    wrapperJar.parent, "ant-wrapper.properties"
-)
+internal fun wrapperProperties(wrapperJar: File) : File = File(wrapperJar.parent, "ant-wrapper.properties")
