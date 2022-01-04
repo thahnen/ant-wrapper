@@ -32,7 +32,6 @@ dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-bom")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.apache.ant:ant:1.10.12")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
@@ -43,11 +42,15 @@ dependencies {
 
 /** 5) Configure JAR */
 tasks.jar {
+    archiveFileName.set("${project.name}.jar")
+
     manifest {
         attributes["Main-Class"] = project.extra["software.class"]!! as String
     }
 
-    from(configurations.compileClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    from(configurations.compileClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
+        exclude("META-INF/*.DSA", "META-INF/*.RSA", "META-INF/*.SF")
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 

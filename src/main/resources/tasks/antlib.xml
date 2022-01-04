@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<antlib>
+  <!-- Definition for Ant task -->
+  <taskdef name="ant.wrapper" classname="com.github.thahnen.tasks.AntWrapperTask" />
+</antlib>

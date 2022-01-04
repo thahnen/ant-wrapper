@@ -16,6 +16,8 @@
 package com.github.thahnen.extension
 
 import java.io.*
+import java.nio.ByteBuffer
+import java.nio.channels.Channels
 import java.security.MessageDigest
 import java.util.ArrayList
 import java.util.zip.ZipFile
@@ -112,6 +114,30 @@ internal fun File.unzip(dest: File) {
 
             BufferedOutputStream(FileOutputStream(File(dest, entry.name))).use { s ->
                 it.getInputStream(entry).copyToOutputStream(s)
+            }
+        }
+    }
+}
+
+
+/**
+ *  Writes to a file from given input stream
+ *
+ *  @param inp stream to read from
+ *  @throws IOException when writing to file fails
+ *  @throws FileNotFoundException when actual file not found
+ */
+@Throws(IOException::class, FileNotFoundException::class)
+internal fun File.fromInputStream(inp: InputStream) {
+    FileOutputStream(this).use {
+        it.channel.use { out ->
+            Channels.newChannel(inp).use { ins ->
+                val buffer = ByteBuffer.allocate(1024)
+                while (ins.read(buffer) >= 0 || buffer.position() > 0) {
+                    buffer.flip()
+                    out.write(buffer)
+                    buffer.clear()
+                }
             }
         }
     }

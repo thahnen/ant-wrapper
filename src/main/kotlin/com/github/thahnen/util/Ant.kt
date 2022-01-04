@@ -86,6 +86,6 @@ internal fun projectDir(wrapperJar: File) : File = wrapperJar.parentFile.parentF
 
 
 /** Get Ant wrapper properties file */
-internal fun wrapperProperties(wrapperJar: File) : File =  File(
-    wrapperJar.parent, wrapperJar.name.replaceFirst("\\jar$", ".properties")
+internal fun wrapperProperties(wrapperJar: File) : File = File(
+    wrapperJar.parent, "ant-wrapper.properties"
 )
