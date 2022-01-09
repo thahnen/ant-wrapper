@@ -26,7 +26,9 @@ import com.github.thahnen.wrapper.Configuration
 
 
 /**
- *  ...
+ *  Logic for actual installation of Ant distribution
+ *
+ *  @author Tobias Hahnen
  */
 internal class Install(private val logger: Logger, val download: Download, val pathAssembler: PathAssembler) {
     /** Local installation path checker */

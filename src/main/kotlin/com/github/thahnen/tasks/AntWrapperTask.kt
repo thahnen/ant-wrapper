@@ -35,8 +35,10 @@ open class AntWrapperTask : Task() {
 
 
     /** Necessary setters for task attributes */
-    fun setAntVersion(nAntVersion: String) { this.antVersion = nAntVersion }
-    fun setBaseDistributionUrl(nBaseDistributionUrl: String) { this.baseDistributionUrl = nBaseDistributionUrl }
+    @Suppress("UNUSED") fun setAntVersion(nAntVersion: String) { this.antVersion = nAntVersion }
+    @Suppress("UNUSED") fun setBaseDistributionUrl(nBaseDistributionUrl: String) {
+        this.baseDistributionUrl = nBaseDistributionUrl
+    }
 
 
     /** Override getDescription method */

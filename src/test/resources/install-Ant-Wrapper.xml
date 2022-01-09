@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="install-Ant-Wrapper" default="install">
+    <!-- load Ant task from local ant-wrapper.jar -->
+    <taskdef resource="tasks/antlib.xml" classpath="ant-wrapper.jar" />
+
+    <!-- run Ant Wrapper to install itself -->
+    <target name="install">
+        <ant.wrapper />
+    </target>
+</project>

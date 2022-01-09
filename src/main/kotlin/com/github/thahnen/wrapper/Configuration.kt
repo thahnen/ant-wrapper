@@ -30,5 +30,4 @@ internal data class Configuration(var distribution: URI,
                                   var distributionPath: String = Install.DEFAULT_DISTRIBUTION_PATH,
                                   var distributionSha256Sum: String?,
                                   var zipBase: String = PathAssembler.ANT_USER_HOME_STRING,
-                                  var zipPath: String = Install.DEFAULT_DISTRIBUTION_PATH
-)
+                                  var zipPath: String = Install.DEFAULT_DISTRIBUTION_PATH)
