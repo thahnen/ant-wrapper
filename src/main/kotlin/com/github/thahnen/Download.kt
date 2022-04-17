@@ -19,7 +19,6 @@ import java.io.*
 import java.net.*
 import java.util.*
 
-import com.github.thahnen.logging.Logger
 import com.github.thahnen.util.multipleLet
 
 
@@ -28,8 +27,7 @@ import com.github.thahnen.util.multipleLet
  *
  *  @author Tobias Hahnen
  */
-internal class Download constructor(private val logger: Logger, private val appName: String,
-                                    private val appVersion: String, private val systemProperties: Map<String, String>) {
+internal class Download constructor(private val systemProperties: Map<String, String>) {
     /** Custom authenticator */
     private class ProxyAuthenticator : Authenticator() {
         /** Override getPasswordAuthentication method */
@@ -107,7 +105,7 @@ internal class Download constructor(private val logger: Logger, private val appN
      */
     private fun calculateUserAgent() : String {
         with (systemProperties) {
-            return "$appName/$appVersion (${this["os.name"]};${this["os.version"]};${this["os.arch"]}) " +
+            return "antw (${this["os.name"]};${this["os.version"]};${this["os.arch"]}) " +
                     "(${this["java.vendor"]};${this["java.version"]};${this["java.vm.version"]})"
         }
     }
@@ -124,7 +122,7 @@ internal class Download constructor(private val logger: Logger, private val appN
         userInfo ?: return
 
         when {
-            "https" != address.scheme -> logger.log(
+            "https" != address.scheme -> println(
                 "[${this::class.simpleName}.addBasicAuthentication - WARNING] - Using HTTP Basic Authentication over " +
                 "an insecure connection to download the Ant distribution. Please consider using HTTPS."
             )

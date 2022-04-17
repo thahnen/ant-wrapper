@@ -15,7 +15,7 @@
  */
 package com.github.thahnen.util
 
-import java.util.*
+import java.util.Locale
 
 
 /**
@@ -35,4 +35,4 @@ internal inline fun <T: Any> multipleLet(vararg elements: T?, closure: (List<T>)
 
 
 /** Checks if current system is Windows */
-internal fun isWindows() : Boolean = System.getProperty("os.name").toLowerCase(Locale.US).indexOf("windows") > -1
+internal fun isWindows() : Boolean = System.getProperty("os.name").lowercase(Locale.US).indexOf("windows") > -1

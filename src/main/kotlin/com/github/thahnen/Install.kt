@@ -20,7 +20,6 @@ import java.util.*
 import java.util.concurrent.Callable
 
 import com.github.thahnen.extension.*
-import com.github.thahnen.logging.Logger
 import com.github.thahnen.util.*
 import com.github.thahnen.wrapper.Configuration
 
@@ -30,7 +29,7 @@ import com.github.thahnen.wrapper.Configuration
  *
  *  @author Tobias Hahnen
  */
-internal class Install(private val logger: Logger, val download: Download, val pathAssembler: PathAssembler) {
+internal class Install(val download: Download, val pathAssembler: PathAssembler) {
     /** Local installation path checker */
     internal class InstallCheck(var antHome: File?, var failureMessage: String?) {
         companion object {
@@ -86,7 +85,7 @@ internal class Install(private val logger: Logger, val download: Download, val p
         }
 
         errorMessage?.let {
-            logger.log(
+            println(
                 "[${this::class.simpleName}.setExecutionPolicy] Could not set executable permissions for: " +
                 antCommand.absolutePath
             )
@@ -179,14 +178,14 @@ internal class Install(private val logger: Logger, val download: Download, val p
                 val tmpZipFile = File(localZipFile.parentFile, "${localZipFile.name}.part")
                 tmpZipFile.delete()
 
-                logger.log("[${this::class.simpleName}.createDist] Downloading $safeDistributionURL")
+                println("[${this::class.simpleName}.createDist] Downloading $safeDistributionURL")
 
                 download.download(distributionURL, tmpZipFile)
                 tmpZipFile.renameTo(localZipFile)
             }
 
             distDir.listDirs().forEach {
-                logger.log("[${this::class.simpleName}.createDist] Deleting directory ${it.absolutePath}")
+                println("[${this::class.simpleName}.createDist] Deleting directory ${it.absolutePath}")
 
                 it.deleteDir()
             }
@@ -196,7 +195,7 @@ internal class Install(private val logger: Logger, val download: Download, val p
             try {
                 localZipFile.unzip(distDir)
             } catch (err: IOException) {
-                logger.log(
+                println(
                     "[${this::class.simpleName}.createDist] Could not unzip ${localZipFile.absolutePath} to " +
                     "${distDir.absolutePath}. Reason: ${err.message}"
                 )

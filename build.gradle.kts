@@ -13,7 +13,7 @@ import org.gradle.api.file.DuplicatesStrategy
 plugins {
     jacoco
 
-    id("org.jetbrains.kotlin.jvm") version "1.4.20"
+    id("org.jetbrains.kotlin.jvm") version "1.5.31"
     id("io.gitlab.arturbosch.detekt") version "1.19.0-RC2"
 }
 
@@ -59,7 +59,7 @@ tasks.jar {
 
 /** 6) JaCoCo configuration */
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.8"
 }
 
 tasks.jacocoTestReport {
