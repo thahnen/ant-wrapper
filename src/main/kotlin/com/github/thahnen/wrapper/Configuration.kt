@@ -17,7 +17,8 @@ package com.github.thahnen.wrapper
 
 import java.net.URI
 
-import com.github.thahnen.*
+import com.github.thahnen.Install
+import com.github.thahnen.PathAssembler
 
 
 /**

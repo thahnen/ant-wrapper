@@ -15,9 +15,19 @@
  */
 package com.github.thahnen
 
-import java.io.*
-import java.net.*
-import java.util.*
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.IOException
+import java.io.OutputStream
+import java.net.Authenticator
+import java.net.PasswordAuthentication
+import java.net.SocketTimeoutException
+import java.net.URI
+import java.net.URISyntaxException
+import java.net.URLConnection
+import java.util.Base64
 
 import com.github.thahnen.util.multipleLet
 

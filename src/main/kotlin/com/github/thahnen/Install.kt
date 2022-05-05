@@ -15,12 +15,20 @@
  */
 package com.github.thahnen
 
-import java.io.*
-import java.util.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
+import java.io.IOException
+import java.util.Formatter
 import java.util.concurrent.Callable
 
-import com.github.thahnen.extension.*
-import com.github.thahnen.util.*
+import com.github.thahnen.extension.calculateSha256Sum
+import com.github.thahnen.extension.deleteDir
+import com.github.thahnen.extension.listDirs
+import com.github.thahnen.extension.unzip
+import com.github.thahnen.util.ExclusiveFileAccessManager
+import com.github.thahnen.util.findLauncherJar
+import com.github.thahnen.util.isWindows
 import com.github.thahnen.wrapper.Configuration
 
 
@@ -49,10 +57,6 @@ internal class Install(val download: Download, val pathAssembler: PathAssembler)
     companion object {
         internal const val DEFAULT_DISTRIBUTION_PATH = "wrapper/dists"
     }
-
-
-    /** local variables */
-    private val exclusiveFileAccessManager = ExclusiveFileAccessManager(120000, 200)
 
 
     /** Sets execution permissions of ant command if not Windows */
@@ -160,7 +164,7 @@ internal class Install(val download: Download, val pathAssembler: PathAssembler)
         val distDir = localDistribution.distDir
         val localZipFile = localDistribution.distZip
 
-        return exclusiveFileAccessManager.access(localZipFile, Callable {
+        return ExclusiveFileAccessManager.access(localZipFile, Callable {
             val markerFile = File(localZipFile.parentFile, "${localZipFile.name}.ok")
             if (distDir.isDirectory && markerFile.isFile) {
                 val installCheck = verifyDistributionRoot(distDir, distDir.absolutePath)

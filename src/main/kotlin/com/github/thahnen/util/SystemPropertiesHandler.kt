@@ -15,8 +15,10 @@
  */
 package com.github.thahnen.util
 
-import java.io.*
-import java.util.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
+import java.util.Properties
 import kotlin.collections.HashMap
 
 
@@ -25,7 +27,7 @@ import kotlin.collections.HashMap
  *
  *  @author Tobias Hahnen
  */
-internal class SystemPropertiesHandler {
+internal class SystemPropertiesHandler private constructor() {
     companion object {
         /** System property key prefix */
         private const val SYSTEM_PROP_PREFIX = "systemProp."

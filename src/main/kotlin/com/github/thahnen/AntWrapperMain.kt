@@ -18,14 +18,21 @@
 package com.github.thahnen
 
 import java.io.File
-import java.net.*
+import java.net.URI
+import java.net.URISyntaxException
 import java.nio.file.Paths
 
 import kotlin.collections.HashMap
 
-import org.gradle.cli.*
+import org.gradle.cli.CommandLineArgumentException
+import org.gradle.cli.CommandLineParser
+import org.gradle.cli.SystemPropertiesCommandLineConverter
 
-import com.github.thahnen.util.*
+import com.github.thahnen.util.addSystemProperties
+import com.github.thahnen.util.antUserHome
+import com.github.thahnen.util.projectDir
+import com.github.thahnen.util.SystemPropertiesHandler
+import com.github.thahnen.util.wrapperProperties
 import com.github.thahnen.wrapper.Executor
 
 

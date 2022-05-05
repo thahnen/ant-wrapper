@@ -21,7 +21,7 @@ import java.util.*
 import org.gradle.cli.ParsedCommandLine
 
 
-/** Ant constants */
+/** Constants used */
 private val DEFAULT_ANT_USER_HOME               = "${System.getProperty("user.home")}/.ant"
 private const val ANT_USER_HOME_PROPERTY_KEY    = "ant.user.home"
 private const val ANT_USER_HOME_ENV_KEY         = "ANT_USER_HOME"

@@ -23,17 +23,11 @@ import java.security.MessageDigest
  *  Creates the MD5 hash from string
  *
  *  @return MD5 hash
- *  @throws RuntimeException when input string could not be hashed
  */
-@Throws(RuntimeException::class)
 internal fun String.getHash() : String {
-    try {
-        val md = MessageDigest.getInstance("MD5")
-        md.update(this.toByteArray())
-        return BigInteger(1, md.digest()).toString(36)
-    } catch (err: Exception) {
-        throw RuntimeException("[String -> getHash] Could not hash input string $this", err)
-    }
+    val md = MessageDigest.getInstance("MD5")
+    md.update(this.toByteArray())
+    return BigInteger(1, md.digest()).toString(36)
 }
 
 
@@ -46,7 +40,7 @@ internal fun String.removeExtension() : String {
     val index = this.lastIndexOf(".")
     return when {
         index < 0   -> this
-        else        -> this.substring(index + 1)
+        else        -> this.substring(0, index)
     }
 }
 

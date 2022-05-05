@@ -15,14 +15,19 @@
  */
 package com.github.thahnen.tasks
 
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 import java.net.URISyntaxException
-import java.util.*
+import java.util.Properties
 
 import org.apache.tools.ant.BuildException
 import org.apache.tools.ant.Task
 
-import com.github.thahnen.extension.*
+import com.github.thahnen.extension.fromInputStream
+import com.github.thahnen.extension.getFileName
 
 
 /**
@@ -88,7 +93,10 @@ open class AntWrapperTask : Task() {
         // store wrapper properties in file system
         try {
             val properties = Properties()
-            properties["distributionUrl"] = baseDistributionUrl ?: "http://archive.apache.org/dist/ant/binaries/apache-ant-${antVersion ?: getAntVersion()}-bin.zip"
+            properties[
+                "distributionUrl"
+            ] = baseDistributionUrl
+                ?: "http://archive.apache.org/dist/ant/binaries/apache-ant-${antVersion ?: getAntVersion()}-bin.zip"
             properties.store(
                 FileOutputStream(File(wrapperDir, "ant-wrapper.properties")), "Ant wrapper properties"
             )

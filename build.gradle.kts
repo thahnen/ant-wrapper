@@ -50,7 +50,7 @@ tasks.jar {
         attributes["Main-Class"] = project.extra["software.class"]!! as String
     }
 
-    from(configurations.compileClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
         exclude("META-INF/*.DSA", "META-INF/*.RSA", "META-INF/*.SF")
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

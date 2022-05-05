@@ -15,7 +15,9 @@
  */
 package com.github.thahnen.extension
 
-import java.io.*
+import java.io.InputStream
+import java.io.IOException
+import java.io.OutputStream
 
 
 /**
@@ -26,7 +28,7 @@ import java.io.*
  */
 @Throws(IOException::class)
 internal fun InputStream.copyToOutputStream(out: OutputStream) {
-    val buffer = ByteArray(1024)
+    val buffer = ByteArray(BUFFER_SIZE)
 
     do {
         val len = this.read(buffer)

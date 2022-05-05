@@ -15,11 +15,15 @@
  */
 package com.github.thahnen.wrapper
 
-import java.io.*
-import java.net.*
-import java.util.*
+import java.io.File
+import java.io.FileInputStream
+import java.net.URI
+import java.net.URISyntaxException
+import java.net.URLClassLoader
+import java.util.Properties
 
-import com.github.thahnen.*
+import com.github.thahnen.Install
+import com.github.thahnen.PathAssembler
 import com.github.thahnen.util.findLauncherJar
 
 

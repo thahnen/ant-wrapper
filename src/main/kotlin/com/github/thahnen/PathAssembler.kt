@@ -17,7 +17,9 @@ package com.github.thahnen
 
 import java.io.File
 
-import com.github.thahnen.extension.*
+import com.github.thahnen.extension.getFileName
+import com.github.thahnen.extension.getHash
+import com.github.thahnen.extension.removeExtension
 import com.github.thahnen.wrapper.Configuration
 
 

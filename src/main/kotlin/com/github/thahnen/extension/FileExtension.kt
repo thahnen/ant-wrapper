@@ -15,12 +15,21 @@
  */
 package com.github.thahnen.extension
 
-import java.io.*
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.security.MessageDigest
 import java.util.ArrayList
 import java.util.zip.ZipFile
+
+
+/** Constants used */
+internal const val BUFFER_SIZE: Int = 4096
 
 
 /**
@@ -34,7 +43,7 @@ internal fun File.calculateSha256Sum() : String {
     val md = MessageDigest.getInstance("SHA-256")
 
     FileInputStream(this).use {
-        val buffer = ByteArray(4096)
+        val buffer = ByteArray(BUFFER_SIZE)
 
         do {
             val n = it.read(buffer)
@@ -133,7 +142,7 @@ internal fun File.fromInputStream(inp: InputStream) {
     FileOutputStream(this).use {
         it.channel.use { out ->
             Channels.newChannel(inp).use { ins ->
-                val buffer = ByteBuffer.allocate(1024)
+                val buffer = ByteBuffer.allocate(BUFFER_SIZE)
                 while (ins.read(buffer) >= 0 || buffer.position() > 0) {
                     buffer.flip()
                     out.write(buffer)
