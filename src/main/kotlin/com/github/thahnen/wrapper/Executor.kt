@@ -108,8 +108,8 @@ internal class Executor(private val propertiesFile: File, private val properties
         properties.getProperty(propertyName)?.let { return it }
         defaultValue?.let { return it }
 
-        when (required) {
-            true -> throw RuntimeException(
+        if (required) {
+            throw RuntimeException(
                 "[${this::class.simpleName}.getProperty] No value with key $propertyName specified in wrapper " +
                 "properties file $propertiesFile"
             )

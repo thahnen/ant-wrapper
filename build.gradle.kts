@@ -5,7 +5,6 @@
 ///     yes -> "val prop_name = project.extra['prop.name']"
 ///     no  -> "val prop_name = property('prop.name')"
 
-import java.lang.Thread.sleep
 import org.gradle.api.file.DuplicatesStrategy
 
 
@@ -13,8 +12,7 @@ import org.gradle.api.file.DuplicatesStrategy
 plugins {
     jacoco
 
-    id("org.jetbrains.kotlin.jvm") version "1.5.31"
-    id("io.gitlab.arturbosch.detekt") version "1.19.0-RC2"
+    id("org.jetbrains.kotlin.jvm") version "1.9.0"
 }
 
 
@@ -59,7 +57,7 @@ tasks.jar {
 
 /** 6) JaCoCo configuration */
 jacoco {
-    toolVersion = "0.8.8"
+    toolVersion = "0.8.10"
 }
 
 tasks.jacocoTestReport {
@@ -69,54 +67,7 @@ tasks.jacocoTestReport {
 }
 
 
-/** 7) detekt configuration */
-detekt {
-    ignoreFailures = true
-    basePath = projectDir.toString()
-}
-
-
-/** 8) Gradle test configuration */
+/** 7) Gradle test configuration */
 tasks.withType<Test> {
     testLogging.showStandardStreams = true
 }
-
-
-/** 8) Create usable Ant installations (with Ant installed) */
-tasks.register("installWithAntInstalled") {
-    dependsOn(tasks.jar)
-
-    doLast {
-        // i) check if property provided as command line argument exists or not
-        when {
-            !project.hasProperty("out") -> throw InvalidUserDataException(
-                "[${project.name} -> installWithAntInstalled] No output Ant project directory provided as command " +
-                "line argument! Run task as follows: 'gradlew installWithAntInstalled -Pout=/home/user/antProject'!"
-            )
-        }
-        val out = file(project.properties["out"] as String)
-
-        // ii) copy Jar / Ant script to output project directory
-        listOf(tasks.jar, "$projectDir/src/test/resources/install-Ant-Wrapper.xml").forEach {
-            copy {
-                from(it)
-                into(out)
-            }
-        }
-        sleep(5000)
-
-        // iii) run Ant script in specific directory
-        exec {
-            workingDir = file(properties["out"] as String)
-            commandLine("ant", "-buildfile", "install-Ant-Wrapper.xml")
-        }
-        sleep(5000)
-
-        // iv) remove Jar / Ant script
-        delete(file("${out.absolutePath}/install-Ant-Wrapper.xml"))
-        delete(file("${out.absolutePath}/ant-wrapper.jar"))
-    }
-}
-
-
-/** 9) Create usable Ant installation (without Ant installed) */

@@ -89,7 +89,7 @@ internal fun wrapperJar() : File {
     }
 
     when {
-        !location.scheme.equals("file") -> throw RuntimeException(
+        "file" != location.scheme -> throw RuntimeException(
             "[AntWrapperMain -> wrapperJar] Cannot determine classpath for wrapper Jar from codebase $location"
         )
     }

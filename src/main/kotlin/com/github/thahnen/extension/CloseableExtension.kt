@@ -22,6 +22,6 @@ import java.io.Closeable
 internal fun Closeable?.maybeCloseQuietly() {
     this?.let {
         try { it.close() }
-        catch (ignored: Exception) { /* NOSONAR */ }
+        catch (_: Exception) { /* NOSONAR */ }
     }
 }

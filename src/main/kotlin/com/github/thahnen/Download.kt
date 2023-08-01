@@ -37,7 +37,7 @@ import com.github.thahnen.util.multipleLet
  *
  *  @author Tobias Hahnen
  */
-internal class Download constructor(private val systemProperties: Map<String, String>) {
+internal class Download(private val systemProperties: Map<String, String>) {
     /** Custom authenticator */
     private class ProxyAuthenticator : Authenticator() {
         /** Override getPasswordAuthentication method */
